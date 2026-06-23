@@ -46,3 +46,8 @@ XGB_PARAMS = {
 # --- Colonnes ---
 TARGET_COLUMN = "Class"           # 0 = transaction legitime, 1 = fraude
 COLUMNS_TO_SCALE = ["Amount", "Time"]  # seules colonnes non normalisees dans le dataset Kaggle
+
+# Ordre exact des colonnes vu par le modele a l'entrainement (= colonnes du CSV
+# Kaggle moins "Class"). L'API doit reconstruire ce meme ordre avant de predire,
+# sinon le modele lirait par exemple "Amount" a la place de "V3".
+FEATURE_COLUMNS = ["Time"] + [f"V{i}" for i in range(1, 29)] + ["Amount"]

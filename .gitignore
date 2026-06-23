@@ -10,6 +10,7 @@ venv/
 __pycache__/
 *.pyc
 .env
+*.db
 
 # Jupyter
 .ipynb_checkpoints/
@@ -19,3 +20,7 @@ dashboard/node_modules/
 
 # Docker
 *.log
+
+*.db
+*.sqlite
+models/*.pkl
