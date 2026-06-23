@@ -1,0 +1,21 @@
+# Données sensibles - NE JAMAIS committer
+data/creditcard.csv
+
+# Modèles ML (trop lourds pour Git)
+models/*.pkl
+models/*.joblib
+
+# Environnement Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node
+dashboard/node_modules/
+
+# Docker
+*.log
