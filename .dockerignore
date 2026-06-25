@@ -1,0 +1,20 @@
+# Le build de l'image api utilise la racine du projet comme contexte
+# (necessaire car l'API importe le package src/). Sans ce fichier, Docker
+# enverrait aussi venv/, le CSV de 150 Mo, node_modules/, .git/... au daemon
+# a chaque build, ce qui le ralentirait enormement pour rien.
+
+venv/
+__pycache__/
+*.pyc
+.git/
+.env
+*.db
+*.sqlite
+
+data/
+notebooks/
+.pytest_cache/
+.ipynb_checkpoints/
+
+dashboard/node_modules/
+dashboard/dist/

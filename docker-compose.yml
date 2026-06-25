@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fraud_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: frauddb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      # Volume nomme : les donnees Postgres survivent meme si le conteneur
+      # est supprime (docker compose down sans --volumes).
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d frauddb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      # Contexte = racine du projet (pas api/) : l'API importe aussi le
+      # package src/, qui se trouve a cote de api/, pas dedans.
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: fraud_api
+    restart: unless-stopped
+    environment:
+      # A l'interieur du reseau Docker, la base s'appelle "db" (nom du
+      # service ci-dessus), jamais "localhost".
+      DATABASE_URL: postgresql://user:password@db:5432/frauddb
+      MODEL_PATH: /app/models/fraud_model.pkl
+      SCALER_PATH: /app/models/scaler.pkl
+    volumes:
+      # :ro (read-only) : l'API lit le modele mais ne doit jamais pouvoir
+      # le modifier depuis le conteneur. Permet aussi de re-entrainer le
+      # modele sur la machine hote sans reconstruire l'image.
+      - ./models:/app/models:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: fraud_dashboard
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres_data:
