@@ -84,3 +84,17 @@ def test_predict_suspicious_transaction_has_high_confidence():
     body = response.json()
     assert body["confidence"] > 0.5
     assert body["is_fraud"] is True
+
+
+def test_explain_returns_top_5_features():
+    payload = {"Amount": 50.0, "Time": 10000.0}
+
+    response = client.post("/explain", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "is_fraud" in body["prediction"]
+    assert "confidence" in body["prediction"]
+    assert len(body["explanation"]) == 5
+    assert all("feature" in item and "importance" in item for item in body["explanation"])
+    assert isinstance(body["interpretation"], str) and body["interpretation"]

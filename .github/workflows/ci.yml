@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      # api/tests/test_api.py charge le vrai modele au demarrage de l'API
+      # (models/fraud_model.pkl) : ces fichiers sont volontairement commites
+      # (quelques Mo, cf. .gitignore) car le dataset Kaggle ne l'est pas et
+      # ne peut donc pas etre re-entraine ici.
+      - run: pytest api/tests/ -v
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Valide la syntaxe et la resolution de docker-compose.yml (services,
+      # build contexts, variables...) sans construire les images ni avoir
+      # besoin du daemon Docker actif - rapide, suffisant pour detecter une
+      # erreur de configuration avant un vrai deploiement.
+      - run: docker compose config

@@ -277,6 +277,24 @@
   color: var(--text-muted);
 }
 
+.explain-card {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  animation: predict-result-fade-in 0.3s ease-out;
+}
+
+.explain-card h4 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
+.explain-card-interpretation {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 @keyframes predict-result-fade-in {
   from {
     opacity: 0;

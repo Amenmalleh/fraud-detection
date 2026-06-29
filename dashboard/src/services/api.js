@@ -28,6 +28,11 @@ export async function predictTransaction(transaction) {
   return data;
 }
 
+export async function explainTransaction(transaction) {
+  const { data } = await client.post("/explain", transaction);
+  return data;
+}
+
 export async function fetchHealth() {
   const { data } = await client.get("/health");
   return data;

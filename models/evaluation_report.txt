@@ -1,0 +1,28 @@
+=== Rapport d'evaluation - Detection de fraude ===
+
+--- Meilleurs hyperparametres XGBoost (GridSearchCV, cv=3, scoring=roc_auc) ---
+{'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 200}
+
+--- AUC-ROC : Random Forest vs XGBoost ---
+Random Forest        : 0.9836
+XGBoost (tune)       : 0.9798
+
+--- Random Forest ---
+AUC-ROC   : 0.9836
+F1-Score  : 0.5753
+Precision : 0.4279
+Recall    : 0.8776
+Matrice de confusion :
+[[56749   115]
+ [   12    86]]
+
+--- XGBoost (tune) ---
+AUC-ROC   : 0.9798
+F1-Score  : 0.6204
+Precision : 0.4830
+Recall    : 0.8673
+Matrice de confusion :
+[[56773    91]
+ [   13    85]]
+
+--- Modele retenu : Random Forest (AUC-ROC = 0.9836) ---

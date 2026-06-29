@@ -21,6 +21,8 @@ KAGGLE_DATASET_PATH = DATA_DIR / "creditcard.csv"
 
 MODEL_PATH = MODELS_DIR / "fraud_model.pkl"
 SCALER_PATH = MODELS_DIR / "scaler.pkl"
+EVALUATION_REPORT_PATH = MODELS_DIR / "evaluation_report.txt"
+ROC_CURVE_PATH = MODELS_DIR / "roc_curve.png"
 
 # --- Hyperparametres ---
 RANDOM_STATE = 42      # fixe la graine aleatoire : resultats reproductibles a chaque execution
@@ -34,13 +36,20 @@ RF_PARAMS = {
     "n_jobs": -1,       # utilise tous les coeurs CPU disponibles
 }
 
-# XGBoost
-XGB_PARAMS = {
-    "n_estimators": 100,
-    "max_depth": 6,
-    "learning_rate": 0.1,
+# XGBoost : params fixes (random_state, eval_metric) + grille explorée par
+# GridSearchCV (cf. train.py). n_jobs=1 sur l'estimateur : c'est GridSearchCV
+# qui parallelise (n_jobs=-1) en lancant plusieurs combinaisons en meme temps,
+# pas l'inverse, sinon on sur-souscrit le CPU (parallelisme imbrique).
+XGB_BASE_PARAMS = {
     "random_state": RANDOM_STATE,
     "eval_metric": "auc",
+    "n_jobs": 1,
+}
+
+XGB_PARAM_GRID = {
+    "n_estimators": [100, 200],
+    "max_depth": [3, 5],
+    "learning_rate": [0.01, 0.1],
 }
 
 # --- Colonnes ---

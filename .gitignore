@@ -1,9 +1,12 @@
 # Données sensibles - NE JAMAIS committer
 data/creditcard.csv
 
-# Modèles ML (trop lourds pour Git)
-models/*.pkl
-models/*.joblib
+# Modeles ML : on les commite volontairement (quelques Mo, pas comme le CSV
+# ci-dessus). Necessaire pour que la CI (.github/workflows/ci.yml) puisse
+# charger un vrai modele et faire passer api/tests/test_api.py sans avoir a
+# re-entrainer (impossible en CI : le dataset n'est pas dans le repo).
+# models/*.pkl
+# models/*.joblib
 
 # Environnement Python
 venv/
@@ -22,6 +25,4 @@ dashboard/dist/
 # Docker
 *.log
 
-*.db
 *.sqlite
-models/*.pkl

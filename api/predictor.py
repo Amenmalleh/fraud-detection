@@ -51,3 +51,17 @@ class FraudPredictor:
         is_fraud = confidence >= self.threshold
 
         return is_fraud, confidence
+
+    def top_features(self, top_n: int = 5) -> list[dict]:
+        """
+        Renvoie les top_n features les plus importantes du modele, au sens
+        GLOBAL (feature_importances_) : c'est l'importance que le modele leur
+        accorde en general, pas une contribution specifique a une transaction
+        donnee (cf. note dans ExplainOutput, api/schemas.py).
+        """
+        pairs = sorted(
+            zip(FEATURE_COLUMNS, self.model.feature_importances_),
+            key=lambda pair: pair[1],
+            reverse=True,
+        )
+        return [{"feature": name, "importance": float(value)} for name, value in pairs[:top_n]]

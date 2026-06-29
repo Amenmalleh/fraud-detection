@@ -65,3 +65,33 @@ class PredictionOutput(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0, description="Probabilite de fraude estimee par le modele (0 a 1)")
     transaction_id: str = Field(description="Identifiant de la transaction loggee en base")
     timestamp: datetime = Field(description="Date/heure de la prediction")
+
+
+class FeatureImportance(BaseModel):
+    """Une feature et son importance dans le modele (cf. ExplainOutput)."""
+
+    feature: str = Field(description="Nom de la colonne (ex: V14)")
+    importance: float = Field(ge=0.0, description="Importance de cette feature dans le modele")
+
+
+class PredictionSummary(BaseModel):
+    """Resume de la prediction, imbrique dans ExplainOutput."""
+
+    is_fraud: bool
+    confidence: float = Field(ge=0.0, le=1.0)
+
+
+class ExplainOutput(BaseModel):
+    """
+    Reponse renvoyee par /explain.
+
+    Note : "explanation" reflete l'importance GLOBALE des features pour le
+    modele (model.feature_importances_), pas une contribution propre a cette
+    transaction precise. Les Random Forest / XGBoost n'exposent pas nativement
+    d'explication par prediction individuelle ; une vraie explication locale
+    necessiterait une librairie dediee comme SHAP (cf. README).
+    """
+
+    prediction: PredictionSummary
+    explanation: list[FeatureImportance] = Field(description="Top features les plus importantes du modele")
+    interpretation: str = Field(description="Phrase resumant les features qui ont le plus pese sur la decision")

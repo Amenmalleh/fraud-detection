@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { predictTransaction } from "../services/api";
+import { explainTransaction, predictTransaction } from "../services/api";
+import ExplainCard from "./ExplainCard";
 
 const V_FEATURE_COUNT = 28;
 
@@ -24,6 +25,7 @@ export default function PredictForm() {
   const [amount, setAmount] = useState(100);
   const [time, setTime] = useState(50000);
   const [result, setResult] = useState(null);
+  const [explanation, setExplanation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -31,6 +33,7 @@ export default function PredictForm() {
     event.preventDefault();
     setLoading(true);
     setError(null);
+    setExplanation(null);
 
     const payload = {
       Amount: Number(amount),
@@ -41,9 +44,15 @@ export default function PredictForm() {
     try {
       const prediction = await predictTransaction(payload);
       setResult(prediction);
+
+      // Meme payload que /predict, pour que l'explication corresponde bien
+      // a la transaction qui vient d'etre analysee (pas une nouvelle).
+      const explainResult = await explainTransaction(payload);
+      setExplanation(explainResult);
     } catch {
       setError("Impossible de contacter l'API.");
       setResult(null);
+      setExplanation(null);
     } finally {
       setLoading(false);
     }
@@ -91,6 +100,8 @@ export default function PredictForm() {
           <div className="predict-result-confidence">Confiance : {(result.confidence * 100).toFixed(1)}%</div>
         </div>
       )}
+
+      {explanation && <ExplainCard explanation={explanation} />}
     </div>
   );
 }

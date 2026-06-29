@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from api.database import Transaction, get_db, init_db
 from api.predictor import FraudPredictor
-from api.schemas import PredictionOutput, TransactionInput
+from api.schemas import ExplainOutput, FeatureImportance, PredictionOutput, PredictionSummary, TransactionInput
 
 # Le modele et le scaler sont charges UNE SEULE FOIS, au demarrage du processus,
 # et reutilises pour toutes les requetes suivantes (voir predictor.py).
@@ -85,6 +85,34 @@ def predict(transaction: TransactionInput, db: Session = Depends(get_db)):
         confidence=confidence,
         transaction_id=str(record.id),
         timestamp=record.created_at or datetime.now(timezone.utc),
+    )
+
+
+@app.post("/explain", response_model=ExplainOutput)
+def explain(transaction: TransactionInput):
+    """
+    Predit une transaction et renvoie en plus les features qui ont le plus
+    pese dans la decision (importance globale du modele, cf. ExplainOutput).
+    Contrairement a /predict, n'est pas loggee en base : ce n'est pas une
+    nouvelle transaction, juste une explication de la meme analyse.
+    """
+    if predictor is None:
+        raise HTTPException(status_code=503, detail="Modele non charge. Entraine-le avec 'python -m src.train'.")
+
+    data = transaction.model_dump()
+    is_fraud, confidence = predictor.predict(data)
+    top_features = predictor.top_features(top_n=5)
+
+    top_names = " et ".join(f["feature"] for f in top_features[:2])
+    interpretation = (
+        f"Les features {top_names} ont le plus contribue a cette decision "
+        "(importance globale du modele, pas specifique a cette transaction)."
+    )
+
+    return ExplainOutput(
+        prediction=PredictionSummary(is_fraud=is_fraud, confidence=confidence),
+        explanation=[FeatureImportance(**f) for f in top_features],
+        interpretation=interpretation,
     )
 
 
